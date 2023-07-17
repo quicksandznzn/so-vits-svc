@@ -151,6 +151,7 @@ class Svc(object):
                     self.target_sample = self.diffusion_args.data.sampling_rate
                     self.hop_size = self.diffusion_args.data.block_size
                     self.spk2id = self.diffusion_args.spk
+                    self.dtype = torch.float32
                     self.speech_encoder = self.diffusion_args.data.encoder
                     self.unit_interpolate_mode = self.diffusion_args.data.unit_interpolate_mode if self.diffusion_args.data.unit_interpolate_mode is not None else 'left'
                 if spk_mix_enable:
@@ -222,11 +223,11 @@ class Svc(object):
         if cluster_infer_ratio !=0:
             if self.feature_retrieval:
                 speaker_id = self.spk2id.get(speaker)
-                if speaker_id is None:
-                    raise RuntimeError("The name you entered is not in the speaker list!")
                 if not speaker_id and type(speaker) is int:
                     if len(self.spk2id.__dict__) >= speaker:
                         speaker_id = speaker
+                if speaker_id is None:
+                    raise RuntimeError("The name you entered is not in the speaker list!")
                 feature_index = self.cluster_model[speaker_id]
                 feat_np = c.transpose(0,1).cpu().numpy()
                 if self.big_npy is None or self.now_spk_id != speaker_id:
